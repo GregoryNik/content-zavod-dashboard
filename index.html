@@ -123,6 +123,18 @@
       background: var(--accent-dark);
     }
 
+    .btn.update {
+      background: #1e66ff;
+      color: #ffffff;
+      border-color: #1e66ff;
+    }
+    .btn.update:hover {
+      background: #1556d6;
+      border-color: #1556d6;
+      color: #ffffff;
+    }
+
+
     .status {
       padding: 10px 16px;
       border-radius: 4px;
@@ -438,6 +450,10 @@
         updateUI();
         renderCharts();
         setStatus("Данные загружены", "success");
+        // После первой успешной загрузки превращаем кнопку в "Обновить"
+        elBtnLoad.textContent = "Обновить";
+        elBtnLoad.classList.remove("primary");
+        elBtnLoad.classList.add("update");
       } catch (error) {
         console.error("Ошибка:", error);
         setStatus("Ошибка загрузки", "error");
@@ -620,17 +636,6 @@
 
     elBtnLoad.addEventListener('click', loadData);
 
-    // Auto-load if saved
-    window.addEventListener('load', () => {
-      const saved = localStorage.getItem('content_zavod_key');
-      if (saved) {
-        elKey.value = saved;
-      }
-    });
-
-    elBtnLoad.addEventListener('click', () => {
-      localStorage.setItem('content_zavod_key', elKey.value);
-    });
-  </script>
+    </script>
 </body>
 </html>
