@@ -11,6 +11,16 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 
+  <script>
+
+    // Chart.js defaults for legend labels
+    if (window.Chart) {
+      Chart.defaults.plugins.legend.labels.color = '#ffffff';
+      Chart.defaults.plugins.legend.labels.font = Chart.defaults.plugins.legend.labels.font || {};
+      Chart.defaults.plugins.legend.labels.font.weight = '700';
+    }
+  </script>
+
   <style>
     :root {
       --bg: #000000;
@@ -313,7 +323,7 @@
       <div style="display: flex; align-items: center; gap: 16px;">
         <div class="logo">◆</div>
         <div class="header-text">
-          <h1>Контент Завод</h1>
+          <h1>Контент Завод <span class="subtitle">— Статистика обновляется раз в сутки в 10:00 МСК</span></h1>
         </div>
       </div>
       <div class="controls">
@@ -634,14 +644,6 @@
     }
 
     elBtnLoad.addEventListener('click', loadData);
-
-    // Auto-load if saved
-    window.addEventListener('load', () => {
-      const saved = localStorage.getItem('content_zavod_key');
-      if (saved) {
-        elKey.value = saved;
-      }
-    });
 </script>
 </body>
 </html>
