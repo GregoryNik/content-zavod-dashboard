@@ -688,6 +688,48 @@ async function loadData() {
       } catch(e) { console.error("Ошибка рисования графика среднего охвата:", e); }
     }
 
+    
+    // Logout (clear key + reset UI)
+    const elBtnLogout = document.getElementById('btnLogout');
+    if (elBtnLogout) {
+      elBtnLogout.addEventListener('click', () => {
+        // 1) clear saved key
+        localStorage.removeItem('content_zavod_key');
+        if (elKey) elKey.value = '';
+
+        // 2) reset data
+        allData = null;
+
+        // 3) destroy charts
+        try {
+          if (typeof charts === 'object') {
+            Object.keys(charts).forEach(k => {
+              if (charts[k] && typeof charts[k].destroy === 'function') charts[k].destroy();
+              charts[k] = null;
+            });
+          }
+        } catch (e) { console.warn('Chart destroy skipped', e); }
+
+        // 4) reset table
+        const tbody = document.getElementById('tableBody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);">Нет данных</td></tr>';
+
+        // 5) reset KPIs
+        ['totalViews','instaViews','tiktokViews','youtubeViews'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = '0';
+        });
+
+        // 6) reset button label/style
+        elBtnLoad.textContent = 'Загрузить';
+        elBtnLoad.classList.add('primary');
+        elBtnLoad.classList.remove('update');
+
+        setStatus('Выход выполнен. Введите ключ', 'info');
+      });
+    }
+
+
     elBtnLoad.addEventListener('click', loadData);
 </script>
 </body>
