@@ -134,7 +134,6 @@
       color: #ffffff;
     }
 
-
     .status {
       padding: 10px 16px;
       border-radius: 4px;
@@ -389,7 +388,7 @@
   </div>
 
   <script>
-    const webhookUrl = "https://nikolaenko-ds.ru/webhook-test/content-zavod-stats";
+    const webhookUrl = "https://nikolaenko-ds.ru/webhook/content-zavod-stats";
     let allData = null;
     let charts = {};
 
@@ -636,6 +635,13 @@
 
     elBtnLoad.addEventListener('click', loadData);
 
-    </script>
+    // Auto-load if saved
+    window.addEventListener('load', () => {
+      const saved = localStorage.getItem('content_zavod_key');
+      if (saved) {
+        elKey.value = saved;
+      }
+    });
+</script>
 </body>
 </html>
