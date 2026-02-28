@@ -454,7 +454,7 @@
 
     function persistKeyIfAny(){ const k=(elKey.value||'').trim(); if(k) localStorage.setItem('content_zavod_key',k); }
 
-async function loadData() {
+    async function loadData() {
       const key = elKey.value.trim();
       if (!key) {
         setStatus("Введите API-ключ", "error");
@@ -467,15 +467,17 @@ async function loadData() {
 
       try {
         persistKeyIfAny();
-        const url = `${webhookUrl}?key=${encodeURIComponent(key)}&ts=${Date.now()}`;
-        console.log("Запрос к:", url);
-
-        const response = await fetch(url, {
-          method: "GET",
-          cache: "no-store",
+        
+        // FIXED: Send key in POST body instead of URL parameters
+        console.log("Отправка POST-запроса с ключом:", key);
+        
+        const response = await fetch(webhookUrl, {
+          method: "POST",
           headers: {
+            "Content-Type": "application/json",
             "Accept": "application/json"
-          }
+          },
+          body: JSON.stringify({ key: key })
         });
 
         console.log("Статус ответа:", response.status);
@@ -531,7 +533,7 @@ async function loadData() {
       } catch (error) {
         console.error("Ошибка:", error);
         setStatus("Ошибка загрузки", "error");
-        showDebug(`ОШИБКА: ${error.message}\n\nПроверьте:\n1. Webhook URL правильный\n2. n8n workflow активен\n3. API-ключ корректный\n\nОткройте консоль браузера (F12) для подробностей`);
+        showDebug(`ОШИБКА: ${error.message}\n\nПроверьте:\n1. Webhook URL правильный\n2. n8n workflow активен\n3. API-ключ корректный\n4. n8n получает POST-запрос с JSON-телом\n\nОткройте консоль браузера (F12) для подробностей`);
       } finally {
         elBtnLoad.disabled = false;
       }
@@ -745,6 +747,6 @@ async function loadData() {
 
 
     elBtnLoad.addEventListener('click', loadData);
-</script>
+  </script>
 </body>
 </html>
