@@ -12,14 +12,22 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 
   <script>
+;(() => {
+  window.addEventListener('DOMContentLoaded', () => {
+    if (!window.Chart) return;
+    Chart.defaults.color = '#ffffff';
+    Chart.defaults.font = Chart.defaults.font || {};
+    Chart.defaults.font.weight = '700';
 
-    // Chart.js defaults for legend labels
-    if (window.Chart) {
+    if (Chart.defaults.plugins && Chart.defaults.plugins.legend && Chart.defaults.plugins.legend.labels) {
       Chart.defaults.plugins.legend.labels.color = '#ffffff';
       Chart.defaults.plugins.legend.labels.font = Chart.defaults.plugins.legend.labels.font || {};
       Chart.defaults.plugins.legend.labels.font.weight = '700';
     }
+  });
+})();
   </script>
+
 
   <style>
     :root {
@@ -630,11 +638,11 @@
           scales: {
             y: {
               beginAtZero: true,
-              ticks: { color: 'var(--muted)', font: { size: 10 } },
+              ticks: { color: '#ffffff', font: { size: 12, weight: '700' } },
               grid: { color: 'rgba(51, 51, 51, 0.3)' }
             },
             x: {
-              ticks: { color: 'var(--muted)', font: { size: 10 } },
+              ticks: { color: '#ffffff', font: { size: 12, weight: '700' } },
               grid: { display: false }
             }
           }
