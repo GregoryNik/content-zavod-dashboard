@@ -412,6 +412,31 @@
 
     const elKey = document.getElementById("apiKey");
     const elBtnLoad = document.getElementById("btnLoad");
+
+    // Auto-fill key from URL (?key=...) or from localStorage (content_zavod_key) and auto-load once
+    (function autoFillAndLoad() {
+      try {
+        const url = new URL(window.location.href);
+        const keyFromUrl = (url.searchParams.get('key') || '').trim();
+        const keyFromStorage = (localStorage.getItem('content_zavod_key') || '').trim();
+        const key = keyFromUrl || keyFromStorage;
+
+        if (key && elKey) {
+          elKey.value = key;
+          // persist latest key silently
+          localStorage.setItem('content_zavod_key', key);
+
+          // Auto-load on first paint
+          setTimeout(() => {
+            loadData();
+          }, 50);
+        }
+      } catch (err) {
+        console.warn('Auto-fill skipped:', err);
+      }
+    })();
+
+
     const elStatus = document.getElementById("status");
     const elDebug = document.getElementById("debug");
 
@@ -426,7 +451,9 @@
       elDebug.textContent = text;
     }
 
-    async function loadData() {
+    function persistKeyIfAny(){ const k=(elKey.value||'').trim(); if(k) localStorage.setItem('content_zavod_key',k); }
+
+async function loadData() {
       const key = elKey.value.trim();
       if (!key) {
         setStatus("Введите API-ключ", "error");
@@ -438,6 +465,7 @@
       elDebug.style.display = "none";
 
       try {
+        persistKeyIfAny();
         const url = `${webhookUrl}?key=${encodeURIComponent(key)}`;
         console.log("Запрос к:", url);
 
