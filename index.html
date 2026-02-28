@@ -493,6 +493,20 @@ async function loadData() {
 
         allData = JSON.parse(text);
 
+        // Validate backend response (do not show "loaded" if backend returned an error)
+        if (!allData) {
+          throw new Error("Пустой JSON от сервера");
+        }
+        if (allData.success === false) {
+          throw new Error(allData.error || "Backend вернул success=false");
+        }
+        if (!allData.summary || !allData.summary.platform_stats || !Array.isArray(allData.summary.platform_stats)) {
+          // show raw payload for debugging
+          showDebug("RAW RESPONSE:\n" + JSON.stringify(allData, null, 2));
+          throw new Error("Неверный формат ответа (нет summary/platform_stats). Проверь workflow.");
+        }
+
+
         // сбрасываем старые графики перед перерисовкой
         try {
           if (typeof charts === 'object') {
