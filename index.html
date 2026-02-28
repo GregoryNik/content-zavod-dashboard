@@ -339,7 +339,6 @@
           <input id="apiKey" type="password" placeholder="API ключ..." />
         </div>
         <button class="btn primary" id="btnLoad">Загрузить</button>
-        <button class="btn secondary" id="btnLogout">Выход</button>
         <div class="status" id="status">Готово</div>
       </div>
     </div>
@@ -454,7 +453,7 @@
 
     function persistKeyIfAny(){ const k=(elKey.value||'').trim(); if(k) localStorage.setItem('content_zavod_key',k); }
 
-    async function loadData() {
+async function loadData() {
       const key = elKey.value.trim();
       if (!key) {
         setStatus("Введите API-ключ", "error");
@@ -467,17 +466,14 @@
 
       try {
         persistKeyIfAny();
-        
-        // FIXED: Send key in POST body instead of URL parameters
-        console.log("Отправка POST-запроса с ключом:", key);
-        
-        const response = await fetch(webhookUrl, {
-          method: "POST",
+        const url = `${webhookUrl}?key=${encodeURIComponent(key)}`;
+        console.log("Запрос к:", url);
+
+        const response = await fetch(url, {
+          method: "GET",
           headers: {
-            "Content-Type": "application/json",
             "Accept": "application/json"
-          },
-          body: JSON.stringify({ key: key })
+          }
         });
 
         console.log("Статус ответа:", response.status);
@@ -494,33 +490,6 @@
         }
 
         allData = JSON.parse(text);
-
-        // Validate backend response (do not show "loaded" if backend returned an error)
-        if (!allData) {
-          throw new Error("Пустой JSON от сервера");
-        }
-        if (allData.success === false) {
-          throw new Error(allData.error || "Backend вернул success=false");
-        }
-        if (!allData.summary || !allData.summary.platform_stats || !Array.isArray(allData.summary.platform_stats)) {
-          // show raw payload for debugging
-          showDebug("RAW RESPONSE:\n" + JSON.stringify(allData, null, 2));
-          throw new Error("Неверный формат ответа (нет summary/platform_stats). Проверь workflow.");
-        }
-
-
-        // сбрасываем старые графики перед перерисовкой
-        try {
-          if (typeof charts === 'object') {
-            Object.keys(charts).forEach(k => {
-              if (charts[k] && typeof charts[k].destroy === 'function') charts[k].destroy();
-              charts[k] = null;
-            });
-          }
-        } catch (e) { console.warn('Chart destroy skipped', e); }
-        // очищаем таблицу перед обновлением
-        const tbody = document.getElementById('tableBody');
-        if (tbody) tbody.innerHTML = '';
         console.log("Данные загружены:", allData);
 
         updateUI();
@@ -533,7 +502,7 @@
       } catch (error) {
         console.error("Ошибка:", error);
         setStatus("Ошибка загрузки", "error");
-        showDebug(`ОШИБКА: ${error.message}\n\nПроверьте:\n1. Webhook URL правильный\n2. n8n workflow активен\n3. API-ключ корректный\n4. n8n получает POST-запрос с JSON-телом\n\nОткройте консоль браузера (F12) для подробностей`);
+        showDebug(`ОШИБКА: ${error.message}\n\nПроверьте:\n1. Webhook URL правильный\n2. n8n workflow активен\n3. API-ключ корректный\n\nОткройте консоль браузера (F12) для подробностей`);
       } finally {
         elBtnLoad.disabled = false;
       }
@@ -704,49 +673,7 @@
       } catch(e) { console.error("Ошибка рисования графика среднего охвата:", e); }
     }
 
-    
-    // Logout (clear key + reset UI)
-    const elBtnLogout = document.getElementById('btnLogout');
-    if (elBtnLogout) {
-      elBtnLogout.addEventListener('click', () => {
-        // 1) clear saved key
-        localStorage.removeItem('content_zavod_key');
-        if (elKey) elKey.value = '';
-
-        // 2) reset data
-        allData = null;
-
-        // 3) destroy charts
-        try {
-          if (typeof charts === 'object') {
-            Object.keys(charts).forEach(k => {
-              if (charts[k] && typeof charts[k].destroy === 'function') charts[k].destroy();
-              charts[k] = null;
-            });
-          }
-        } catch (e) { console.warn('Chart destroy skipped', e); }
-
-        // 4) reset table
-        const tbody = document.getElementById('tableBody');
-        if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);">Нет данных</td></tr>';
-
-        // 5) reset KPIs
-        ['totalViews','instaViews','tiktokViews','youtubeViews'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.textContent = '0';
-        });
-
-        // 6) reset button label/style
-        elBtnLoad.textContent = 'Загрузить';
-        elBtnLoad.classList.add('primary');
-        elBtnLoad.classList.remove('update');
-
-        setStatus('Выход выполнен. Введите ключ', 'info');
-      });
-    }
-
-
     elBtnLoad.addEventListener('click', loadData);
-  </script>
+</script>
 </body>
 </html>
