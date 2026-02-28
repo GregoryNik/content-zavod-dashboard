@@ -377,7 +377,7 @@
   </div>
 
   <script>
-    const webhookUrl = "https://nikolaenko-ds.ru/webhook-test/webhook-test/content-zavod-stats";
+    const webhookUrl = "https://nikolaenko-ds.ru/webhook-test/content-zavod-stats";
     let allData = null;
     let charts = {};
 
@@ -409,6 +409,8 @@
       elDebug.style.display = "none";
 
       try {
+        console.log("Запрос к:", webhookUrl);
+
         const url = `${webhookUrl}?key=${encodeURIComponent(key)}`;
         console.log("Запрос к:", url);
 
