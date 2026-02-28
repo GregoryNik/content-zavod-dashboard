@@ -467,11 +467,12 @@ async function loadData() {
 
       try {
         persistKeyIfAny();
-        const url = `${webhookUrl}?key=${encodeURIComponent(key)}`;
+        const url = `${webhookUrl}?key=${encodeURIComponent(key)}&ts=${Date.now()}`;
         console.log("Запрос к:", url);
 
         const response = await fetch(url, {
           method: "GET",
+          cache: "no-store",
           headers: {
             "Accept": "application/json"
           }
@@ -491,6 +492,19 @@ async function loadData() {
         }
 
         allData = JSON.parse(text);
+
+        // сбрасываем старые графики перед перерисовкой
+        try {
+          if (typeof charts === 'object') {
+            Object.keys(charts).forEach(k => {
+              if (charts[k] && typeof charts[k].destroy === 'function') charts[k].destroy();
+              charts[k] = null;
+            });
+          }
+        } catch (e) { console.warn('Chart destroy skipped', e); }
+        // очищаем таблицу перед обновлением
+        const tbody = document.getElementById('tableBody');
+        if (tbody) tbody.innerHTML = '';
         console.log("Данные загружены:", allData);
 
         updateUI();
